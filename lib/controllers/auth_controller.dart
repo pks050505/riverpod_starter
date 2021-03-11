@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:demo/exceptions/custom_exception.dart';
 import 'package:demo/repositorys/auth_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -7,6 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 final authControllerProvider = StateNotifierProvider<AuthController>((ref) {
   return AuthController(ref.read)..appStarted();
 });
+final loginExceptionProvider = StateProvider<CustomException?>((_) => null);
 
 class AuthController extends StateNotifier<User?> {
   final Reader _read;
@@ -24,9 +26,29 @@ class AuthController extends StateNotifier<User?> {
   }
 
   void appStarted() async {
-    final user = _read(authRepositoryProvider).getCurrentUser();
-    if (user == null) {
-      await _read(authRepositoryProvider).signInAnounmously();
+    _read(authRepositoryProvider).getCurrentUser();
+    // if (user == null) {
+    //   await _read(authRepositoryProvider).signInAnounmously();
+    // }
+  }
+
+  void signInWithEmailAndPassword(
+      {required String email, required String password}) async {
+    try {
+      await _read(authRepositoryProvider)
+          .signInWithEmailAndPassword(email: email, password: password);
+    } on CustomException catch (e) {
+      _read(loginExceptionProvider).state = e;
+    }
+  }
+
+  void signUpWithEmailAndPassword(
+      {required String email, required String password}) async {
+    try {
+      _read(authRepositoryProvider)
+          .signUpwithEmailAndPassword(email: email, password: password);
+    } on CustomException catch (e) {
+      _read(loginExceptionProvider).state = e;
     }
   }
 

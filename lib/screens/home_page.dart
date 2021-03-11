@@ -2,7 +2,6 @@ import 'package:demo/controllers/auth_controller.dart';
 import 'package:demo/controllers/item_list_controller.dart';
 import 'package:demo/exceptions/custom_exception.dart';
 import 'package:demo/model/item.dart';
-import 'package:demo/screens/addItem.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -27,7 +26,7 @@ class HomePage extends HookWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Colors.red,
-              duration: Duration(seconds: 3),
+              duration: Duration(seconds: 20),
               // content: SelectText(exception.state!.toString()),
               content: SelectableText(exception.state!.toString()),
             ),
@@ -37,7 +36,7 @@ class HomePage extends HookWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, AddItem.route);
+          AddItemDialog.show(context, Item.empty());
         },
         child: const Icon(Icons.add),
       ),
@@ -45,63 +44,63 @@ class HomePage extends HookWidget {
   }
 }
 
-// class AddItemDialog extends HookWidget {
-//   final Item item;
+class AddItemDialog extends HookWidget {
+  final Item item;
 
-//   static void show(BuildContext context, Item item) {
-//     showDialog(
-//       context: context,
-//       builder: (context) => AddItemDialog(item: item),
-//     );
-//   }
+  static void show(BuildContext context, Item item) {
+    showDialog(
+      context: context,
+      builder: (context) => AddItemDialog(item: item),
+    );
+  }
 
-//   const AddItemDialog({Key? key, required this.item}) : super(key: key);
-//   bool get isUpdating => item.id != null;
-//   @override
-//   Widget build(BuildContext context) {
-//     final textController = useTextEditingController(text: item.name);
-//     return Dialog(
-//       child: Padding(
-//         padding: const EdgeInsets.all(12),
-//         child: Column(
-//           mainAxisSize: MainAxisSize.min,
-//           children: [
-//             TextField(
-//               autofocus: true,
-//               controller: textController,
-//               decoration: const InputDecoration(hintText: 'Item name'),
-//             ),
-//             const SizedBox(
-//               height: 12,
-//             ),
-//             SizedBox(
-//               width: double.infinity,
-//               child: ElevatedButton(
-//                 style: ElevatedButton.styleFrom(
-//                     primary: isUpdating
-//                         ? Colors.purple
-//                         : Theme.of(context).primaryColor),
-//                 onPressed: () {
-//                   isUpdating
-//                       ? context.read(itemListControllerProvider).updateItem(
-//                             updatedItem: item.copyWith(
-//                                 name: textController.text.trim(),
-//                                 obtained: item.obtained),
-//                           )
-//                       : context
-//                           .read(itemListControllerProvider)
-//                           .addItem(name: textController.text.trim());
-//                   Navigator.of(context).pop();
-//                 },
-//                 child: Text(isUpdating ? 'Update' : 'Add'),
-//               ),
-//             )
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+  const AddItemDialog({Key? key, required this.item}) : super(key: key);
+  bool get isUpdating => item.id != null;
+  @override
+  Widget build(BuildContext context) {
+    final textController = useTextEditingController(text: item.name);
+    return Dialog(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              autofocus: true,
+              controller: textController,
+              decoration: const InputDecoration(hintText: 'Item name'),
+            ),
+            const SizedBox(
+              height: 12,
+            ),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    primary: isUpdating
+                        ? Colors.purple
+                        : Theme.of(context).primaryColor),
+                onPressed: () {
+                  isUpdating
+                      ? context.read(itemListControllerProvider).updateItem(
+                            updatedItem: item.copyWith(
+                                name: textController.text.trim(),
+                                obtained: item.obtained),
+                          )
+                      : context
+                          .read(itemListControllerProvider)
+                          .addItem(name: textController.text.trim());
+                  Navigator.of(context).pop();
+                },
+                child: Text(isUpdating ? 'Update' : 'Add'),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 final currentItem = ScopedProvider<Item>((_) => throw UnimplementedError());
 
@@ -186,7 +185,7 @@ class ItemTile extends HookWidget {
               updatedItem: item.copyWith(obtained: !item.obtained),
             ),
       ),
-      // onTap: () => AddItemDialog.show(context, item),
+      onTap: () => AddItemDialog.show(context, item),
       onLongPress: () =>
           context.read(itemListControllerProvider).deleteItem(itemId: item.id!),
     );

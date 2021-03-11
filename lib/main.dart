@@ -1,5 +1,4 @@
-import 'package:demo/screens/addItem.dart';
-import 'package:demo/screens/home_page.dart';
+import 'package:demo/screens/signInScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -21,8 +20,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomePage(),
-      routes: {AddItem.route: (_) => AddItem()},
+      home: WelcomeScreen(),
     );
   }
 }
